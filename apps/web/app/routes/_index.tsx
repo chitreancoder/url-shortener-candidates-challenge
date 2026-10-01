@@ -1,10 +1,6 @@
 import { Form, useActionData } from "react-router";
 import type { Route } from "./+types/_index";
-import {
-  baseUrl,
-  shortenedUrls,
-  generateShortCode,
-} from "@url-shortener/engine";
+import { baseUrl, shortenedUrls, generateShortCode } from "@url-shortener/engine";
 
 export function loader() {
   return {
@@ -29,7 +25,7 @@ export async function action({ request }: Route.ActionArgs) {
   };
 }
 
-export function meta({}: Route.MetaArgs) {
+export function meta() {
   return [
     { title: "URL Shortener" },
     { name: "description", content: "Shorten your URLs quickly and easily" },
@@ -71,9 +67,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 
         {actionData?.shortenedUrl && (
           <div className="mt-8 p-4 bg-violet-400 rounded-3xl border-4 border-double border-yellow-500 -rotate-1">
-            <p className="text-lg text-lime-300 mb-2 font-black uppercase">
-              Your shortened URL:
-            </p>
+            <p className="text-lg text-lime-300 mb-2 font-black uppercase">Your shortened URL:</p>
             <a
               href={actionData.shortenedUrl}
               target="_blank"
@@ -87,9 +81,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 
         {actionData?.error && (
           <div className="mt-8 p-4 bg-lime-500 rounded-none border-8 border-solid border-red-700">
-            <p className="text-2xl text-blue-800 font-black">
-              {actionData.error}
-            </p>
+            <p className="text-2xl text-blue-800 font-black">{actionData.error}</p>
           </div>
         )}
       </div>
