@@ -1,0 +1,4 @@
+{
+  "extends": "@url-shortener/config/tsconfig/node.json",
+  "include": ["src", "prisma.config.ts"]
+}

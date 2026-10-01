@@ -1,0 +1,29 @@
+{
+  "name": "@url-shortener/db",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "typecheck": "tsc",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
+    "@url-shortener/engine": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.7",
+    "@typescript/native": "catalog:",
+    "@url-shortener/config": "workspace:*",
+    "prisma": "^7.10.0",
+    "typescript": "catalog:",
+    "vitest": "^5.0.3"
+  }
+}

@@ -1,0 +1,19 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Url {
+  code          String    @id @db.VarChar(7)
+  originalUrl   String    @map("original_url") @db.VarChar(2048)
+  clickCount    Int       @default(0) @map("click_count")
+  lastClickedAt DateTime? @map("last_clicked_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  @@index([clickCount(sort: Desc)])
+  @@map("urls")
+}
