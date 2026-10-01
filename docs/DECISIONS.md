@@ -34,7 +34,7 @@ A single `container.ts` in `apps/server` builds the object graph by hand:
 
 **Why:** there are about four injectable things. A hand-written root gives the same dependency inversion and testability with no library, no name-based resolution and no magic. Revisit if the graph grows.
 
-### 1.4 Import alias `@/` everywhere
+### 1.4 Import alias `@/` in apps, relative imports in libs
 
 **Why:** one convention across the apps, and it's what shadcn generates by default. This replaces the current `~/`.
 
@@ -218,6 +218,8 @@ Environment variables are validated with Zod at startup, so a missing or invalid
 ## 13. Tooling
 
 `libs/config` holds the shared `tsconfig` bases, ESLint flat config and Prettier config. Turbo tasks: `build`, `dev`, `typecheck`, `lint`, `test`, plus `db:generate`, which `build` and `typecheck` depend on.
+
+**TypeScript 7 for `tsc`, TypeScript 6 for tooling.** TS 7 (the native compiler) typechecks much faster but has no programmatic API yet, so `typescript-eslint` can't run on it. A pnpm catalog installs TS 7 as `@typescript/native` (provides `tsc`) and aliases `typescript` to `@typescript/typescript6` for everything that imports the API. Drop the alias once `typescript-eslint` supports TS 7.
 
 ## 14. Out of scope / future work
 

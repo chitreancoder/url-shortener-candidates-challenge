@@ -1,28 +1,15 @@
 import { Form, useActionData } from "react-router";
 import type { Route } from "./+types/_index";
-import { baseUrl, shortenedUrls, generateShortCode } from "@url-shortener/engine";
 
+// Temporary: shortening moves to apps/server; this route is rebuilt in the web phase.
 export function loader() {
-  return {
-    baseUrl: baseUrl ? baseUrl + "/s/" : "-",
-  };
+  return { baseUrl: "-" };
 }
 
-export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const url = formData.get("url") as string;
-
-  if (!url) {
-    return { error: "URL is required" };
-  }
-
-  const shortCode = generateShortCode();
-
-  shortenedUrls.set(shortCode, url);
-
-  return {
-    shortenedUrl: `${baseUrl}/s/${shortCode}`,
-  };
+export async function action(
+  _: Route.ActionArgs,
+): Promise<{ error?: string; shortenedUrl?: string }> {
+  return { error: "Shortening is temporarily unavailable" };
 }
 
 export function meta() {

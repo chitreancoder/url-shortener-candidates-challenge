@@ -12,21 +12,22 @@
   "dependencies": {
     "@react-router/node": "7.12.0",
     "@react-router/serve": "7.12.0",
-    "@url-shortener/engine": "workspace:*",
     "isbot": "^5.1.31",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "react-router": "7.12.0"
+    "react-router": "7.12.0",
+    "@url-shortener/api": "workspace:*"
   },
   "devDependencies": {
-    "@url-shortener/config": "workspace:*",
     "@react-router/dev": "7.12.0",
     "@tailwindcss/vite": "^4.1.13",
     "@types/node": "^22",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "@typescript/native": "catalog:",
+    "@url-shortener/config": "workspace:*",
     "tailwindcss": "^4.1.13",
-    "typescript": "^5.9.2",
+    "typescript": "catalog:",
     "vite": "^7.1.7",
     "vite-tsconfig-paths": "^5.1.4"
   }

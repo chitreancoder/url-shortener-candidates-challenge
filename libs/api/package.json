@@ -1,0 +1,22 @@
+{
+  "name": "@url-shortener/api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@typescript/native": "catalog:",
+    "@url-shortener/config": "workspace:*",
+    "typescript": "catalog:",
+    "vitest": "^5.0.3"
+  }
+}

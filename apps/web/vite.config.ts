@@ -7,9 +7,9 @@ export default defineConfig({
   envDir: "../..",
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
   ssr: {
-    noExternal: ["@url-shortener/engine"],
+    noExternal: ["@url-shortener/api"],
   },
   optimizeDeps: {
-    include: ["@url-shortener/engine"],
+    include: ["@url-shortener/api"],
   },
 });
