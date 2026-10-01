@@ -48,7 +48,7 @@ Startup order is handled by Compose: `db` (healthy) → `migrate` (applies Prism
 
 ## Local Setup
 
-Requires Node 22+ and pnpm 10 (`corepack enable`).
+Requires Node 22.12+ and pnpm 10 (`corepack enable`).
 
 ```bash
 pnpm install

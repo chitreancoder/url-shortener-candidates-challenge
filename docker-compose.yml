@@ -53,6 +53,8 @@ services:
     build:
       context: .
       target: web
+    # server.js has no signal handling; tini forwards SIGTERM so `down` doesn't wait for SIGKILL.
+    init: true
     ports:
       - "3000:3000"
     environment:

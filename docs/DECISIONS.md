@@ -153,7 +153,7 @@ A single global Express error middleware. Every error response has the same shap
 { "error": { "code": "VALIDATION_ERROR", "message": "…", "fieldErrors": { "url": ["…"] } } }
 ```
 
-Domain errors (`NotFoundError`, `ValidationError`, `RateLimitedError`, `CodeGenerationError`) map to status codes in one place. Unknown errors are logged and returned as a generic 500, with no stack traces leaked.
+One error middleware maps errors to status codes: `ZodError` and malformed bodies → 400, `NotFoundError` → 404, and `CodeGenerationError` falls through to 500. The rate limiter answers 429 itself, in the same envelope. Unknown errors are logged and returned as a generic 500, with no stack traces leaked.
 
 **Why:** one place to change error behavior, and one shape for the web app to parse. `fieldErrors` lets the form show the message next to the right input.
 
@@ -195,12 +195,12 @@ Environment variables are validated with Zod at startup, so a missing or invalid
 
 ## 10. Docker
 
-- One multi-stage `Dockerfile` with three targets sharing a single build stage: `migrate`, `server`, `web`. Runtime images get production dependencies only (`pnpm install --prod` from the lockfile) and run as the non-root `node` user.
+- One multi-stage `Dockerfile` with three targets sharing a single build stage: `migrate`, `server`, `web`. Runtime images run as the non-root `node` user. They are meant to get production dependencies only, but `pnpm install --prod` over the build stage's tree only unlinks dev dependencies, so the pnpm store still carries them (about 1 GB per image). Known issue, listed in §14.
 - Services: `db` (`postgres:17-alpine`, named volume, `pg_isready` healthcheck) → `migrate` (one-shot `prisma migrate deploy`, then exits) → `server` (waits for `migrate` to complete successfully; `/health` healthcheck) → `web` (waits for a healthy `server`).
 - Alpine images install `openssl`, which Prisma needs. On SIGTERM the server closes the Prisma connection.
 - `minimumReleaseAge: 1440` in `pnpm-workspace.yaml`: versions published less than a day ago are never resolved, locally or in Docker.
 
-**Why a separate `migrate` job instead of migrating in the server's start command:** the runtime image doesn't need the Prisma CLI, and with several server replicas only one process runs migrations.
+**Why a separate `migrate` job instead of migrating in the server's start command:** the server doesn't need the Prisma CLI at runtime, and with several server replicas only one process runs migrations.
 
 **Why the release-age guard:** most npm supply-chain attacks are caught and unpublished within hours, so a one-day delay avoids them at almost no cost.
 
@@ -241,13 +241,14 @@ Environment variables are validated with Zod at startup, so a missing or invalid
 
 ## 14. Out of scope / future work
 
-| Item                                                 | Why it would come next                                                                                                                      |
-| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Authentication and link ownership                    | Today the stats view lists every user's links.                                                                                              |
-| Redis LRU cache for redirects                        | Redirect is the hot read path. Caching `code → url` takes load off Postgres.                                                                |
-| Redis counter-based code generation                  | An incrementing counter encoded in base62 removes collisions entirely. Needs Redis, so it's deferred.                                       |
-| PostHog (or similar) for click analytics             | Referrers, geography, over-time charts, without building an events table.                                                                   |
-| Link expiry, custom aliases, malicious-URL blocklist | Common shortener features, not required here.                                                                                               |
-| Structured logging (pino + pino-http)                | Today it's `console.*` for errors and boot only. JSON logs with a request ID, level and latency per request, shipped to a log store.        |
-| Metrics and tracing (OpenTelemetry)                  | Request rate, latency and error rate per route, redirect throughput, DB pool usage; traces across web → server → Postgres. Alerting on top. |
-| Error tracking (Sentry or similar)                   | Unhandled errors in both apps grouped with stack traces and context, instead of digging through logs.                                       |
+| Item                                                                     | Why it would come next                                                                                                                      |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Authentication and link ownership                                        | Today the stats view lists every user's links.                                                                                              |
+| Redis LRU cache for redirects                                            | Redirect is the hot read path. Caching `code → url` takes load off Postgres.                                                                |
+| Redis counter-based code generation                                      | An incrementing counter encoded in base62 removes collisions entirely. Needs Redis, so it's deferred.                                       |
+| PostHog (or similar) for click analytics                                 | Referrers, geography, over-time charts, without building an events table.                                                                   |
+| Link expiry, custom aliases, malicious-URL blocklist                     | Common shortener features, not required here.                                                                                               |
+| Slim runtime images (`pnpm deploy --prod` or a fresh prod-install stage) | Today the server and web images still carry dev dependencies in the pnpm store (§10).                                                       |
+| Structured logging (pino + pino-http)                                    | Today it's `console.*` for errors and boot only. JSON logs with a request ID, level and latency per request, shipped to a log store.        |
+| Metrics and tracing (OpenTelemetry)                                      | Request rate, latency and error rate per route, redirect throughput, DB pool usage; traces across web → server → Postgres. Alerting on top. |
+| Error tracking (Sentry or similar)                                       | Unhandled errors in both apps grouped with stack traces and context, instead of digging through logs.                                       |
