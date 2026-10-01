@@ -30,6 +30,14 @@ export const makeShortenRequestSchema = (blockedHosts: string[] = []) =>
           ctx.addIssue({ code: "custom", message: "This URL is already a short link" });
           return z.NEVER;
         }
+        // Checked again after normalization: percent-encoding can grow the URL past the column size.
+        if (parsed.href.length > MAX_URL_LENGTH) {
+          ctx.addIssue({
+            code: "custom",
+            message: `URL must be at most ${MAX_URL_LENGTH} characters`,
+          });
+          return z.NEVER;
+        }
         return parsed.href;
       }),
   });

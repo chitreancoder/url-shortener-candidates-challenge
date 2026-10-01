@@ -21,6 +21,8 @@ describe("ShortenRequest", () => {
     ["data:", "data:text/html,<script>alert(1)</script>"],
     ["ftp:", "ftp://example.com/file"],
     ["too long", `https://example.com/${"a".repeat(MAX_URL_LENGTH)}`],
+    // Short enough as typed, but percent-encoding grows it 6x past the limit.
+    ["too long once encoded", `https://example.com/${"é".repeat(1000)}`],
   ])("rejects %s", (_, url) => {
     const result = parse(url);
     expect(result.success).toBe(false);
