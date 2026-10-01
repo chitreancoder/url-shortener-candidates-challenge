@@ -16,6 +16,7 @@
     "typecheck": {
       "dependsOn": ["^db:generate", "db:generate"]
     },
+    "lint": {},
     "test": {
       "dependsOn": ["^db:generate", "db:generate"]
     },
