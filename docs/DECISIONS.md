@@ -241,10 +241,13 @@ Environment variables are validated with Zod at startup, so a missing or invalid
 
 ## 14. Out of scope / future work
 
-| Item                                                 | Why it would come next                                                                                |
-| ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| Authentication and link ownership                    | Today the stats view lists every user's links.                                                        |
-| Redis LRU cache for redirects                        | Redirect is the hot read path. Caching `code → url` takes load off Postgres.                          |
-| Redis counter-based code generation                  | An incrementing counter encoded in base62 removes collisions entirely. Needs Redis, so it's deferred. |
-| PostHog (or similar) for click analytics             | Referrers, geography, over-time charts, without building an events table.                             |
-| Link expiry, custom aliases, malicious-URL blocklist | Common shortener features, not required here.                                                         |
+| Item                                                 | Why it would come next                                                                                                                      |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Authentication and link ownership                    | Today the stats view lists every user's links.                                                                                              |
+| Redis LRU cache for redirects                        | Redirect is the hot read path. Caching `code → url` takes load off Postgres.                                                                |
+| Redis counter-based code generation                  | An incrementing counter encoded in base62 removes collisions entirely. Needs Redis, so it's deferred.                                       |
+| PostHog (or similar) for click analytics             | Referrers, geography, over-time charts, without building an events table.                                                                   |
+| Link expiry, custom aliases, malicious-URL blocklist | Common shortener features, not required here.                                                                                               |
+| Structured logging (pino + pino-http)                | Today it's `console.*` for errors and boot only. JSON logs with a request ID, level and latency per request, shipped to a log store.        |
+| Metrics and tracing (OpenTelemetry)                  | Request rate, latency and error rate per route, redirect throughput, DB pool usage; traces across web → server → Postgres. Alerting on top. |
+| Error tracking (Sentry or similar)                   | Unhandled errors in both apps grouped with stack traces and context, instead of digging through logs.                                       |
