@@ -40,6 +40,19 @@ A single `container.ts` in `apps/server` builds the object graph by hand:
 
 **Scope:** apps only. Libs are consumed as TypeScript source, so a `@/` import inside a lib would resolve against the importing app's paths. Libs use relative imports.
 
+### 1.5 Server organized by feature
+
+```
+apps/server/src/
+  features/urls/urls.service.ts   application layer: validate with libs/api, call the engine, map to DTOs, pick the redirect target
+  features/urls/urls.router.ts    HTTP only: routes, shorten rate limiter, status codes
+  http/errors.ts                  error envelope + the global error middleware
+  app.ts                          middleware, /health, mounts feature routers
+  container.ts                    composition root
+```
+
+**Why:** everything about one feature lives in one folder, so adding a feature means adding a folder rather than touching shared route/controller files. Routers stay thin and HTTP-free logic is testable without Express. Domain rules (code generation, retries, the repository port) stay in `libs/engine`. The feature service is the layer between the HTTP contract and the domain, not a second copy of it.
+
 ## 2. Persistence
 
 ### 2.1 PostgreSQL + Prisma

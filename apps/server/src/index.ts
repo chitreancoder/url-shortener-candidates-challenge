@@ -3,13 +3,11 @@ import { createContainer } from "@/container";
 import { loadEnv } from "@/env";
 
 const env = loadEnv();
-const { prisma, service, checkDatabase } = createContainer(env);
+const { prisma, urls, checkDatabase } = createContainer(env);
 
 const app = createApp({
-  service,
+  urls,
   checkDatabase,
-  publicUrl: env.PUBLIC_URL,
-  webUrl: env.WEB_URL,
   internalApiKey: env.INTERNAL_API_KEY,
 });
 

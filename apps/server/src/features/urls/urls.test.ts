@@ -9,6 +9,7 @@ import { generateCode, InMemoryUrlRepository, ShortUrlService } from "@url-short
 import request from "supertest";
 import { describe, expect, it, vi } from "vitest";
 import { type AppDeps, createApp } from "@/app";
+import { UrlsService } from "@/features/urls/urls.service";
 
 const PUBLIC_URL = "http://short.test";
 const WEB_URL = "http://web.test";
@@ -17,17 +18,18 @@ const BROWSER_UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36";
 const BOT_UA = "Slackbot-LinkExpanding 1.0 (+https://api.slack.com/robots)";
 
-const setup = (overrides: Partial<AppDeps> = {}) => {
+const setup = ({
+  service = new ShortUrlService(new InMemoryUrlRepository(), generateCode),
+  ...overrides
+}: Partial<Omit<AppDeps, "urls">> & { service?: ShortUrlService } = {}) => {
   const deps: AppDeps = {
-    service: new ShortUrlService(new InMemoryUrlRepository(), generateCode),
+    urls: new UrlsService(service, { publicUrl: PUBLIC_URL, webUrl: WEB_URL }),
     checkDatabase: async () => {},
-    publicUrl: PUBLIC_URL,
-    webUrl: WEB_URL,
     internalApiKey: INTERNAL_API_KEY,
     shortenRateLimit: { limit: 100, windowMs: 60_000 },
     ...overrides,
   };
-  return { app: createApp(deps), service: deps.service };
+  return { app: createApp(deps), service };
 };
 
 const expectErrorEnvelope = (body: unknown, code: string) => {
