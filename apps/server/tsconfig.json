@@ -1,0 +1,9 @@
+{
+  "extends": "@url-shortener/config/tsconfig/node.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src", "*.config.ts"]
+}
