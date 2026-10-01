@@ -5,7 +5,7 @@
   "scripts": {
     "build": "react-router build",
     "clean": "rm -rf build .react-router .turbo",
-    "dev": "NODE_ENV=development node server.js",
+    "dev": "NODE_ENV=development node --env-file-if-exists=../../.env server.js",
     "start": "NODE_ENV=production node server.js",
     "test": "vitest run",
     "typecheck": "react-router typegen && tsc"
@@ -38,7 +38,7 @@
     "@types/react-dom": "^19.2.3",
     "@typescript/native": "catalog:",
     "@url-shortener/config": "workspace:*",
-    "shadcn": "^4.21.1",
+    "shadcn": "^4.21.0",
     "tailwindcss": "^4.1.13",
     "typescript": "catalog:",
     "vite": "^7.1.7",

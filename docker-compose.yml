@@ -1,3 +1,5 @@
+x-internal-key: &internal-key ${INTERNAL_API_KEY:-local-dev-internal-key-change-me}
+
 services:
   db:
     image: postgres:17-alpine
@@ -15,15 +17,51 @@ services:
       timeout: 5s
       retries: 10
 
+  migrate:
+    build:
+      context: .
+      target: migrate
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/url_shortener
+    depends_on:
+      db:
+        condition: service_healthy
+
+  server:
+    build:
+      context: .
+      target: server
+    ports:
+      - "4000:4000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/url_shortener
+      PORT: 4000
+      # Short links point here: the API owns the redirect.
+      PUBLIC_URL: http://localhost:4000
+      WEB_URL: http://localhost:3000
+      INTERNAL_API_KEY: *internal-key
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4000/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   web:
     build:
       context: .
-      dockerfile: Dockerfile
+      target: web
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=production
-      - PUBLIC_URL=http://localhost:3000
+      PORT: 3000
+      API_URL: http://server:4000
+      INTERNAL_API_KEY: *internal-key
+    depends_on:
+      server:
+        condition: service_healthy
 
 volumes:
   db-data:

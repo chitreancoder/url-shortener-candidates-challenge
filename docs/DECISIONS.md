@@ -166,6 +166,7 @@ Domain errors (`NotFoundError`, `ValidationError`, `RateLimitedError`, `CodeGene
 The shorten form submits to a React Router action, which runs on the web server, so the API would see every request coming from the web container. To fix that:
 
 - The web action forwards the client IP in a header together with a shared secret, `INTERNAL_API_KEY`.
+- The web app runs on a small Express custom server (React Router's `node-custom-server` template) instead of `react-router-serve`, so the action can read the socket IP. It never trusts the browser's `X-Forwarded-For`.
 - The API uses the forwarded IP **only when the secret matches**. Otherwise it uses the socket IP.
 
 **Why:**
@@ -188,16 +189,20 @@ Environment variables are validated with Zod at startup, so a missing or invalid
 | App    | Variables                                                                                         |
 | ------ | ------------------------------------------------------------------------------------------------- |
 | server | `DATABASE_URL`, `PORT`, `PUBLIC_URL` (short-link base), `WEB_URL`, `INTERNAL_API_KEY`, `NODE_ENV` |
-| web    | `API_URL` (internal, e.g. `http://server:4000`), `INTERNAL_API_KEY`, `NODE_ENV`                   |
+| web    | `API_URL` (internal, e.g. `http://server:4000`), `INTERNAL_API_KEY`, `PORT`                       |
 
 **Why:** misconfiguration should fail at boot, not on the first request. The original code produced `undefined/s/xx` when `PUBLIC_URL` was missing.
 
 ## 10. Docker
 
-- Services: `db` (`postgres:17-alpine`, named volume, `pg_isready` healthcheck), `server` and `web`.
-- `server` waits for `db` with `depends_on: condition: service_healthy` and runs `prisma migrate deploy` before starting.
-- Alpine images install `openssl`, which Prisma needs.
-- `/health` backs the server's healthcheck. On SIGTERM the server closes the Prisma connection.
+- One multi-stage `Dockerfile` with three targets sharing a single build stage: `migrate`, `server`, `web`. Runtime images get production dependencies only (`pnpm install --prod` from the lockfile) and run as the non-root `node` user.
+- Services: `db` (`postgres:17-alpine`, named volume, `pg_isready` healthcheck) → `migrate` (one-shot `prisma migrate deploy`, then exits) → `server` (waits for `migrate` to complete successfully; `/health` healthcheck) → `web` (waits for a healthy `server`).
+- Alpine images install `openssl`, which Prisma needs. On SIGTERM the server closes the Prisma connection.
+- `minimumReleaseAge: 1440` in `pnpm-workspace.yaml`: versions published less than a day ago are never resolved, locally or in Docker.
+
+**Why a separate `migrate` job instead of migrating in the server's start command:** the runtime image doesn't need the Prisma CLI, and with several server replicas only one process runs migrations.
+
+**Why the release-age guard:** most npm supply-chain attacks are caught and unpublished within hours, so a one-day delay avoids them at almost no cost.
 
 **Why:** `docker compose up --build` on a clean machine must produce a working, migrated system with no manual steps.
 

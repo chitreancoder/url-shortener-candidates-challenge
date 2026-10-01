@@ -7,3 +7,11 @@ packages:
 catalog:
   typescript: npm:@typescript/typescript6@^6.0.2
   "@typescript/native": npm:typescript@^7.0.2
+
+# Supply-chain guard: never resolve versions published less than a day ago.
+minimumReleaseAge: 1440
+
+overrides:
+  # 5.33.15 (via shadcn -> @dotenvx/dotenvx) is younger than minimumReleaseAge.
+  # Remove once it ages past the cutoff.
+  systeminformation: 5.33.14
