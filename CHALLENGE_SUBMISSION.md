@@ -9,6 +9,7 @@
 | Phase                                                                                 | Time   |
 | ------------------------------------------------------------------------------------- | ------ |
 | Exploration and planning ([DECISIONS.md](docs/DECISIONS.md), [PLAN.md](docs/PLAN.md)) | 53 min |
+| Implementation of version 1 (phases 0–6: working app on Docker), reached at minute 90 | 37 min |
 
 ## What I Would Do With More Time
 
